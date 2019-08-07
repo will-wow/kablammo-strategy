@@ -17,8 +17,9 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'multi_json'
   s.add_runtime_dependency 'oj'
-  s.add_runtime_dependency 'execjs', '1.4.0'
   s.add_runtime_dependency 'redis_message_capsule', '~>0.8.3'
 
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'rack-test'
+  s.add_development_dependency 'rspec'
 end
