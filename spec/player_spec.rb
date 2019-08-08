@@ -1,48 +1,63 @@
 require_relative '../lib/kablammo'
+require_relative './battle_maker'
+
+require 'pry'
 
 RSpec.describe Player do
-  subject { Player.load_strategy("user") }
+  subject { Player.load_strategy("robot_0") }
 
-  def make_battle(
-    width: 5,
-    height: 5,
-    walls: [{x: 2, y: 2}],
-    robots:
-  )
-    default_robot =  {
-      username: "robot_1",
-      last_turn: "*",
-      x: 0,
-      y: 0,
-      armor: 5,
-      ammo: 10,
-      rotation: 0,
-      direction: 0,
-      abilities: [],
-      power_ups: []
-    }
-
-    Strategy::Model::Battle.new(
-      turn: {
-        board: {
-          width: width,
-          height: height,
-          walls: walls,
-          robots: robots.map { |robot| robot.merge(default_robot)} ,
-          power_ups: []
-        }
-      }
-    )
+  let(:map) do 
+    [
+      "     ",
+      "     ",
+      "0 x 1",
+      "     ",
+      "     "
+    ]
   end
+
+  let(:robot_data) { {} }
 
   let(:battle) do
-    make_battle(robots: [
-      { username: "robot_1", x: 0, y: 0, },
-      { username: "robot_2", x: 4, y: 4, }
-    ])
+    BattleMaker.make(map, robot_data)
   end
 
-  it "works" do
-    expect(subject.execute_turn(battle)).to eq("f")
+  it "rests by default" do
+    expect(subject.execute_turn(battle)).to eq(".")
   end 
+
+  context "" do
+    let(:map) do 
+      [
+        "_____",
+        "_____",
+        "0___1",
+        "_____",
+        "_____"
+      ]
+    end
+  end
+  it "moves away from a threatening opponent" do
+    let
+  end
+
+  describe "#threats?" do
+    context "given an opponent facing away" do
+      it "is not threatened" do
+        subject.execute_turn(battle)
+        expect(subject.threats?()).to eq(false)
+      end
+    end
+
+    context "given an opponent facing me" do
+      let(:robots_data) do 
+        { 1 => { rotation: 180 } }
+      end
+      
+      it "is threatened" do
+        subject.execute_turn(battle)
+        expect(subject.threats?()).to eq(true)
+      end
+    end
+  end
 end
