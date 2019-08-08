@@ -1,6 +1,6 @@
 require './examples/aggressive'
 require './examples/defensive'
-require_relative './lib/safety/danger_score'
+require_relative './lib/scaredy/danger_score'
 
 extend Aggressive
 extend Defensive
@@ -13,18 +13,18 @@ on_turn do
 end
 
 def is_threat?(opponent)
-  Safety::DangerScore.danger_zone?(me, opponent)
+  Scaredy::DangerScore.danger_zone?(me, opponent)
 end
 
-def threats?()
+def threats?
   threats.any?
 end
 
-def threats()
+def threats
   opponents.filter(&method(:is_threat?))
 end
 
-def turn()
+def turn
   return move_away_from!(threats.first) if threats?
   return @last_move if @last_move
   "."
