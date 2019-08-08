@@ -47,10 +47,10 @@ module BattleMaker
     robots.sort_by { |robot| robot[:username] }
   end
 
-  def self.each_cell(map)
+  def self.each_cell(map, &block)
     map.reverse.each_with_index do |row, y|
       row.chars.to_a.each_with_index do |cell, x|
-        yield(cell, x, y)
+        block.call(cell, x, y)
       end
     end
   end

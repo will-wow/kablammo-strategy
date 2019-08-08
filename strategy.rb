@@ -1,5 +1,6 @@
 require './examples/aggressive'
 require './examples/defensive'
+require_relative './lib/safety/danger_score'
 
 extend Aggressive
 extend Defensive
@@ -12,7 +13,7 @@ on_turn do
 end
 
 def is_threat?(opponent)
-  (opponent.rotation - opponent.direction_to(me)).abs <= MAX_SKEW * 2
+  Safety::DangerScore.danger_zone?(me, opponent)
 end
 
 def threats?()
