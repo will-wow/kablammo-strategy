@@ -8,25 +8,31 @@ RSpec.describe Player do
 
   let(:map) do 
     [
-      "     ",
-      "     ",
-      "0 x 1",
-      "     ",
-      "     "
+      "_____",
+      "_____",
+      "0_x_1",
+      "_____",
+      "_____"
     ]
   end
 
-  let(:robot_data) { {} }
+  let(:robot_data) do
+    {
+      1 => { rotation: 180 }
+    } 
+  end
 
   let(:battle) do
     BattleMaker.make(map, robot_data)
   end
 
-  it "rests by default" do
-    expect(subject.execute_turn(battle)).to eq(".")
-  end 
+  context "given no immediate threat" do
+    it "moves towards turret by default" do
+      expect(subject.execute_turn(battle)).to eq("e")
+    end 
+  end
 
-  context "" do
+  context "given a threat" do
     let(:map) do 
       [
         "_____",
@@ -36,28 +42,9 @@ RSpec.describe Player do
         "_____"
       ]
     end
-  end
-  it "moves away from a threatening opponent" do
-    let
-  end
 
-  describe "#threats?" do
-    context "given an opponent facing away" do
-      it "is not threatened" do
-        subject.execute_turn(battle)
-        expect(subject.threats?()).to eq(false)
-      end
-    end
-
-    context "given an opponent facing me" do
-      let(:robots_data) do 
-        { 1 => { rotation: 180 } }
-      end
-      
-      it "is threatened" do
-        subject.execute_turn(battle)
-        expect(subject.threats?()).to eq(true)
-      end
+    it "moves away from threat" do
+      expect(["n", "s"]).to include(subject.execute_turn(battle))
     end
   end
 end

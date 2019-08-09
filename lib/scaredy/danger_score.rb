@@ -5,62 +5,57 @@ module Scaredy
   class DangerScore
     include Strategy::Constants
 
-    def initialize(me, battle)
-      @me = me
-      @battle = battle
-    end
+    TARGETED = 10
+    SEEN = 1
+    SAFE = 0
 
-    def self.danger_zone?(target, opponent)
-      (opponent.rotation - opponent.direction_to(target)).abs <= MAX_SKEW * 2
-    end
-
-    def self.score_cells(me, battle)
-      danger_score = DangerScore.new(me, battle)
-
-      danger_score.score_cells()
-    end
-
-    def score_cells
-      map_cells_in_battle do |cell|
-        count_opponents_aiming_towards_target(cell)
-      end
-    end
-
-    private
-
-    def map_cells_in_battle(&block)
-      map_cells(@battle.board.width, @battle.board.height, &block)
-    end
-
-    def map_cells(width, height, &block)
-      values = []
-
-      for y in 0...height do
-        values.push([])
-
-        for x in 0...width do
-          cell = Cell.new(x, y)
-          value = block.call(cell)
-
-          values[y].push(value)
-        end
+    def self.score(cell, me, opponents)
+      score = opponents.reduce(0) do |count, opponent|
+         count + danger_score(cell, opponent)
       end
 
-      values
+      score - aim_score(cell, me)
     end
 
-    def count_opponents_aiming_towards_target(target)
-      opponents.reduce(0) do |count, opponent|
-        DangerScore.danger_zone?(target, opponent) ? count + 1 : count
+    def self.danger_score(cell, opponent)
+      return TARGETED if opponent.located_at?(cell)
+      return SAFE if hidden_from?(opponent, cell)
+
+      return TARGETED if opponent.can_fire_at?(cell)
+      return SEEN
+    end
+
+    def self.aim_score(cell, me)
+      me.can_fire_at?(cell) ? 1 : 0
+    end
+
+    def self.immediate_danger?(score)
+      score >= TARGETED
+    end
+
+    def self.seen?(score)
+      score >= SEEN
+    end
+
+    def self.hidden_from?(opponent, cell)
+      return false if opponent.located_at? cell
+
+      los = opponent.line_of_sight_to cell
+      return false if los.empty?
+
+      first_barrier = los.index do |pixel|
+        opponent.board.fixed_obstruction?(pixel)
       end
+
+      return false unless first_barrier
+
+      target_hit = los.index { |p| p.located_at? cell }
+      # Return true if the target is behind the barrier
+      target_hit > first_barrier
     end
 
-    def visible_players
-      @battle.robots.reject{|r| r.dead? }
-    end
-
-    def opponents
-      visible_players.reject{ |r| r == @me }
+    def self.wall?(opponent, pixel)
+      opponent.board.walls.any? { |w| w.located_at? target }
     end
   end
 end

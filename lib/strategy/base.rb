@@ -34,6 +34,10 @@ module Strategy
       battle.robots.reject{|r| r.dead? }
     end
 
+    def dead_players
+      battle.robots.filter{|r| r.dead? }
+    end
+
     def opponents
       visible_players.reject{ |r| r == me }
     end

@@ -25,7 +25,25 @@ module Strategy::Model
     end
 
     def obstruction?(target)
-      walls.any? { |w| w.located_at? target } || robots.any? { |r| r.located_at? target }
+      wall?(target) || robot?(target)
+    end
+
+    def fixed_obstruction?(target)
+      wall?(target) || dead_robot?(target)
+    end
+
+    def wall?(target)
+      walls.any? { |w| w.located_at? target }
+    end
+
+    def robot?(target)
+      robots.any? { |r| r.located_at? target }
+    end
+
+    def dead_robot?(target)
+      robot = robots.find { |r| r.located_at? target }
+      return false unless robot
+      robot.dead?
     end
 
     def direction_to(source, dest)

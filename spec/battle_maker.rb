@@ -13,12 +13,24 @@ module BattleMaker
       robot.merge(robot_overrides[i] || {})
     end
 
-    make_battle(
+    battle = make_battle(
       width: width,
       height: height,
       walls: walls,
       robots: robots
     )
+
+    # Filter out invisible opponents
+    player = battle.robots[0]
+    battle.robots.filter! do |robot| 
+      if robot == player
+        true
+      else
+        player.can_see?(robot)
+      end
+    end
+
+    battle
   end
 
   def self.map_to_walls(map)
